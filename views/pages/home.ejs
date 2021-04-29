@@ -1,0 +1,300 @@
+<div class="columns is-multiline is-centered" id="app">
+ 
+  <!-- Room -->
+  <div class="column is-3-desktop is-12-mobile">
+    <button  @click="closeSesion" class="button is-info">Cerrar sesion</button>
+    <div class="card frame-chat"  >
+      <div class="card-content">
+        <h2 class="tag is-size-4 has-text-weight-bold is-success">Salas</h2>
+
+        <hr />
+        
+        <button class="button is-info is-medium" @click="modalActive = true;" >Crear sala</button>
+
+        <hr />
+
+        <div class="media" v-for='(chat, index) of chats' :key="` chat_${index} `">
+          <div class="media-left">
+            <figure class="image is-48x48">
+              <img
+                class="is-rounded"
+                :src="chat.image"
+                alt=""
+              />
+            </figure>
+          </div>
+
+        <div class="media-content">
+          <div class="div">
+            <a class="title is-4" @click="selectChat(chat.id)"> {{ chat.name }} </a>
+          </div>
+          <p class="subtitle is-6">{{ chat.createdAt }}</p>
+          <button class="button is-small is-danger" @click="deleteRoom(chat.id)"> Delete </button>
+        </div>
+        
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chats -->
+  <div class="column is-9-desktop is-12-mobile">
+    <h1 class=" is-size-4 is-info" v-if="!currentChatId">Ingrese a una sala</h1>
+    <div class="card frame-chat" v-if="currentChatId">
+      <div class="card-content">
+        <h2 class="tag is-size-4 has-text-weight-bold is-success">Salas</h2>
+
+        <hr />
+
+        <!-- Caja de comentarios -->
+
+        <div class="frame-box" id="frame-box">
+          <!-- Comentarios  -->
+          <div v-for='(message, index) of messages' :key="`message-${index}`">
+
+            <span 
+              class="tag is-medium"
+              :class="{
+                'is-pulled-left is-success': (message.user_id !== user_id), 
+                'is-pulled-right is-primary':(message.user_id === user_id)
+              }">{{ message.text }}</span>
+            <br>
+            <br>
+            
+          </div>
+        
+        </div>
+
+        <!-- Input -->
+        <div class="field has-addons" v-if="currentChatId">
+          <div class="control is-expanded">
+            <input  v-model='text' class="input" type="text" placeholder="Escribir algo..." @keydown.enter="sendMessage" />
+          </div>
+          <div class="control">
+            <button class="button is-info" @click="sendMessage"> Enviar </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" :class="{'is-active': modalActive}">
+    <div class="modal-background" @click="modalActive = false;"></div>
+    <div class="modal-content">
+      <div class="card">
+        <div class="card-content">
+
+          <form @submit.prevent="createRoom">
+            <div class="field">
+              <label for="" class="label">Nombre</label>
+              <div class="control">
+                <input v-model="name" type="text" class="input" placeholder="Nombre interesante" id="">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="" class="label">Descripcion</label>
+              <div class="control">
+                <input v-model="description"  type="text" class="input" placeholder="Descripcion interesante" id="">
+              </div>
+            </div>
+            
+            <div class="field">
+              <label class="label">Tematica</label>
+              <div class="control">
+                <div class="select">
+                  <select  v-model='topic'>
+                    <option value="">Seleccionar tematica</option>
+                    <option value="random">random</option>
+                    <option value="magic">magic</option>
+                    <option value="code">code</option>
+                    <option value="games">games</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="control">
+                <button class="button is-info">Crear sala</button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+    <button class="modal-close is-large" aria-label="close" @click="modalActive = false;"></button>
+  </div>
+</div>
+
+<style>
+  .frame-chat {
+    min-height: 50vh;
+  }
+
+  .frame-box {
+    height: 30em;
+    overflow-y: scroll;
+  }
+</style>
+
+<!-- Script para usar sails.io  (sockets)-->
+<script src="/dependencies/sails.io.js"></script>
+<script>
+  const config = {
+    headers: { Authorization: "Bearer " + localStorage.getItem('token') }
+  }
+  const vue = new Vue({
+    el: '#app', 
+    data: function () {
+      return {
+        logout: false,
+        // tools -modal 
+        modalActive: false, 
+        
+        // CRUD ROOM 
+        name: '', 
+        description: '', 
+        image: '', 
+        topic: '',
+        roomId: null,
+
+        // Info chat 
+        currentChatId: null,
+
+
+        // Chat 
+        // valores iniciales de la app 
+        user_id: 0, 
+        text: '', 
+        chats: [], 
+        messages: []
+      }
+    }, 
+    
+    // Esto se ejecuta una sola vez cuando la vista es cargada 
+    created() {
+      this.getRooms(); 
+      this.user_id = new Date().getTime() + '';
+      this.authValidation();
+      this.setSocket(); 
+    }, 
+    methods: {
+      authValidation() {
+        const token = localStorage.getItem('token'); 
+        if(!token) window.location = '/login'; 
+        else {
+          axios.get('/auth/check', config)
+            .then(res => {
+              if(res.status !== 200) {
+                window.location = '/login'; 
+              } else {
+                this.logout = true; 
+              }
+            }).catch(console.log)
+        }
+      },
+      setSocket() {
+        // subscribirse al evento message para ser notificado cuando hay nuevos msg
+        io.socket.on('message', data => {
+          // aca se pierde la ref del this por ende para seguir referenciando a las propiedades de la  app es necesario redeclarar this. 
+          const _ = this;
+            console.log(data);
+          // filtrar mensajes que no son del chat en el que se encuentra el cliente 
+          if(Number(data.room) === this.currentChatId) {
+            
+            _.getChat();
+            console.log(data, 'socket');
+          }
+        });
+      }, 
+      getRooms() {
+        axios.get('/rooms', config)
+        .then((response) => {
+          this.chats = response.data.map(chat => ({  
+              name: chat.name,
+              image: chat.information.length > 0 ? chat.information.pop().image : 'none',
+              id: chat.id,
+              createdAt: chat.createdAt
+            })
+          );
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
+      },
+      getChat() {
+        if(this.currentChatId) {
+          axios.get(`/rooms/${this.currentChatId}/messages`, config)
+            .then(result => {
+              this.messages = result.data; 
+
+              // alinear scroll chat 
+              setTimeout(() => {
+                document.getElementById('frame-box').scrollTop = document.getElementById('frame-box').scrollHeight; 
+              }, 300);
+            })
+            .catch(console.log);
+        }
+      },
+      sendMessage() {
+        if(!this.currentChatId) {
+          return alert('seleccione un chat');
+        }
+
+        const dataRoom = {
+          text: this.text, 
+          user_id: this.user_id
+        }
+
+        axios.post(`/rooms/${this.currentChatId}/messages`, dataRoom, config)
+          .then(res => { console.log(`elemento creado`);})
+          .catch(console.log); 
+        
+          this.text = '';
+      }, 
+      createRoom() {
+        // crear sala 
+        const dataRoom = {
+          name: this.name, 
+        }
+        axios.post('/rooms', dataRoom, config)
+          .then((response) => {
+            const {id: roomId } = response.data;
+
+            // crear information 
+            const dataInfo = {
+              description: this.description,
+              image: this.image,
+              topic: this.topic,
+            }
+
+            axios.post(`/rooms/${roomId}/informations`, dataInfo, config)
+              .then(response => { alert('Se creo sala'); this.getRooms(); })
+              .catch(console.log)
+          })
+          .catch(console.log)
+      }, 
+
+      deleteRoom(id) {
+        const isConfirmed = confirm('Deseas eliminar la sala?'); 
+        if(isConfirmed) {
+          axios.delete(`/rooms/${id}`, config)
+            .then(res => {this.getRooms(); alert('Sala borrada')})
+            .catch(console.log);
+        }
+      },
+
+      selectChat(id) {
+        this.currentChatId = id; 
+        this.getChat(); 
+      },
+      closeSesion() {
+        localStorage.removeItem('token');
+        window.location = '/login';
+      }
+    }
+  });  
+
+</script>

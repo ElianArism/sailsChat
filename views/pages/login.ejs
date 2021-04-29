@@ -1,0 +1,79 @@
+<style>
+    .center-card {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .full-width { 
+        min-width: 100%;
+    }
+</style>
+<div class="columns is-multiline is-centered" id="app">
+
+    <!-- Login -->
+    <div class="column is-9-desktop is-12-mobile">
+      <div class="card ">
+        <div class="card-content">
+          <h2 class="tag is-size-4 has-text-weight-bold is-success">Salas</h2>
+  
+          <hr />
+  
+          <div class="content">
+              <form @submit.prevent="send">
+                  <div class="field">
+                      <label for="" class="label">Correo electronico</label>
+                      <div class="control">
+                          <input v-model="email" type="email" placeholder="email@example.com" id="">
+                      </div>
+                  </div>
+                  <div class="field">
+                      <label for="" class="label">Contraseña</label>
+                      <div class="control">
+                          <input v-model="password" type="password" placeholder="ingresar contraseña" id="">
+                      </div>
+                  </div>
+                  
+                  <div class="field">
+                      <div class="control">
+                          <button class="button is-info"> Enviar</button>
+                      </div>
+                  </div>
+
+              </form>
+          </div>
+
+          <br>
+
+          <span>No tienes cuenta?</span>
+          <a href="/signup">Registrate</a>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+  
+  
+<script>
+
+    const vue = new Vue({
+        el: '#app', 
+        data() {
+            return {
+
+                email: '',
+                password: '',
+            }; 
+        },
+        methods: {
+            send() {
+                axios.post('/auth/login', {email: this.email, password: this.password})
+                .then(res => {
+                  localStorage.setItem('token', res.data.token);
+                  window.location = '/home';  
+                }).catch(console.log)
+            }
+        }
+    });  
+
+</script>

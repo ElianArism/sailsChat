@@ -1,0 +1,87 @@
+<style>
+    .center-card {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .full-width { 
+        min-width: 100%;
+    }
+</style>
+<div class="columns is-multiline is-centered" id="app">
+
+    <!-- Signup -->
+    <div class="column is-9-desktop is-12-mobile">
+      <div class="card ">
+        <div class="card-content">
+          <h2 class="tag is-size-4 has-text-weight-bold is-success">Salas</h2>
+  
+          <hr />
+  
+          <div class="content">
+              <form @submit.prevent="send">
+                  <div class="field">
+                      <label for="" class="label">Nickname</label>
+                      <div class="control">
+                          <input v-model="nickname" type="text" placeholder="Coloca un nombre divertido" id="">
+                      </div>
+                  </div>
+                  <div class="field">
+                      <label for="" class="label">Correo electronico</label>
+                      <div class="control">
+                          <input v-model="email" type="email" placeholder="email@example.com" id="">
+                      </div>
+                  </div>
+                  <div class="field">
+                      <label for="" class="label">Contraseña</label>
+                      <div class="control">
+                          <input v-model="password" type="password" placeholder="ingresar contraseña" id="">
+                      </div>
+                  </div>
+                  
+                  <div class="field">
+                      <div class="control">
+                          <button class="button is-info"> Enviar</button>
+                      </div>
+                  </div>
+
+              </form>
+          </div>
+
+          <br>
+
+          <span>No tienes cuenta?</span>
+          <a href="/signup">Registrate</a>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+  
+  
+<script>
+
+    const vue = new Vue({
+        el: '#app', 
+        data() {
+            return {
+                nickname: '',
+                email: '',
+                password: '',
+            };
+        },
+        methods: {
+            send() {
+                console.log(this.nickname);
+                console.log(this.email);
+                console.log(this.password);
+                axios.post('/auth/signup', {nickname: this.nickname, email: this.email, password: this.password})
+                .then(res => {
+                  window.location = '/login';  
+                }).catch(console.log)
+            }
+        }
+    });  
+
+</script>
