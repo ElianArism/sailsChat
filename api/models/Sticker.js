@@ -1,10 +1,3 @@
-/**
- * Sticker.js
- *
- * @description :: A model definition represents a database table/collection.
- * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
- */
-
 module.exports = {
 
   attributes: {
@@ -14,11 +7,10 @@ module.exports = {
     },
     image: {
       type: 'string', 
-      defaultsTo: 'https://picsum.photos/300/300', // default 
+      defaultsTo: 'https://picsum.photos/300/300',
     },
 
-    // relacion 
-    // muchos a muchos 
+    // Relacion muchos a muchos 
     rooms: {
       collection: 'room', 
       via: 'stickers'

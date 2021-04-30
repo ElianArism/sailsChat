@@ -1,10 +1,3 @@
-/**
- * WordController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
- */
-
 let globalWords = [
     {
         id: 1, 
@@ -30,10 +23,9 @@ let globalWords = [
 
 module.exports = {
   list: (req, res) => {
-    //   Obtener elementos, 
-    const words = globalWords; // orm 
 
-    //  Retornar elementos 
+    const words = globalWords; 
+
     return res.status(200).json({words});
   }, 
 

@@ -9,6 +9,7 @@
         min-width: 100%;
     }
 </style>
+
 <div class="columns is-multiline is-centered" id="app">
 
     <!-- Signup -->
@@ -61,7 +62,6 @@
   
   
 <script>
-
     const vue = new Vue({
         el: '#app', 
         data() {
@@ -73,9 +73,6 @@
         },
         methods: {
             send() {
-                console.log(this.nickname);
-                console.log(this.email);
-                console.log(this.password);
                 axios.post('/auth/signup', {nickname: this.nickname, email: this.email, password: this.password})
                 .then(res => {
                   window.location = '/login';  

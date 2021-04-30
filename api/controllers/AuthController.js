@@ -1,13 +1,7 @@
-/**
- * AuthController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
- */
-
 const bcrypt = require('bcrypt');
 
 module.exports = {
+  
   login: async (req, res) => {
     
     const user = await User.findOne({where: {email: req.body.email}}); 

@@ -1,15 +1,6 @@
-/**
- * Information.js
- *
- * @description :: A model definition represents a database table/collection.
- * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
- */
-
 module.exports = {
 
   attributes: {
-    // campos here
-
     description: {
       type: 'string', 
       required: true, 
@@ -17,7 +8,7 @@ module.exports = {
     },
     image: {
       type: 'string', 
-      defaultsTo: 'https://picsum.photos/300/300' // default 
+      defaultsTo: 'https://picsum.photos/300/300' 
     }, 
     topic: {
       type: 'string', 
@@ -27,9 +18,8 @@ module.exports = {
 
     // relacion 
     owner: {
-      // corresponde a la creacion de una foreign key para poder relacionar
-      model: 'room', // relacionado con un registro room
-      unique: true // el registro debe ser unico 
+      model: 'room', 
+      unique: true 
     } 
   },
 

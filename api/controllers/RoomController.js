@@ -1,16 +1,7 @@
-/**
- * RoomController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
- */
-
-// Paginacion de sails. 
+// Paginacion . 
 const _perPage = 10; 
 
 module.exports = {
-    
-    // metodos / actions  
 
     list: async (req, res) => {
         const page = Math.abs(req.query.page - 1) || 0; 
@@ -18,10 +9,10 @@ module.exports = {
         
         const rooms = await 
         Room
-        .find({ limit: perPage, skip: page }) // buscar registros en room 
-        .populate('information') //traer info vinculada al documento
-        .populate('messages') //traer msg vinculada al documento
-        .populate('stickers'); //traer sticker vinculada al documento
+        .find({ limit: perPage, skip: page }) 
+        .populate('information')
+        .populate('messages') 
+        .populate('stickers');
         
         return res.json(rooms);
     },
@@ -29,7 +20,7 @@ module.exports = {
     show: async (req, res) => {
        const {id} = req.params; 
 
-       const room = await Room.findOne({ where: {id} }); // Buscar un registro que coincida 
+       const room = await Room.findOne({ where: {id} });
 
        return res.json(room); 
     },
@@ -39,7 +30,7 @@ module.exports = {
             name: req.body.name
         }; 
 
-        const newRoom = await Room.create(data).fetch(); // crear un elemento en la bd y usar fetch para regresarlo cuando se cree
+        const newRoom = await Room.create(data).fetch(); 
         
         return res.status(201).json(newRoom); 
     },
@@ -47,22 +38,19 @@ module.exports = {
     update: async (req, res) => {
         const {id} = req.params; 
 
-        // data for update 
         const data = {
             name: req.body.name
         }; 
 
-        // update 
         const room = await Room.updateOne({ id }).set(data);
 
         return res.json(room); 
     },
 
-    // delete totalmente. Para un soft delete se usa archive()
     destroy: async (req, res) => {
         const {id} = req.params; 
 
-        const room = await Room.destroyOne({id}); // destroyOne tiene la variante destroy() que elimina elementos basado en una condicion 
+        const room = await Room.destroyOne({id}); 
 
         return res.json(room); 
     }

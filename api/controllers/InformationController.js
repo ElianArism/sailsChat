@@ -1,16 +1,7 @@
-/**
- * InformationController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
- */
-
 
 module.exports = {
-    
-    // actions 
 
-    // add information
+    // add info
     store: async (req, res) => {
         const {roomId} = req.params; 
 
@@ -20,7 +11,6 @@ module.exports = {
             topic: req.body.topic, 
 
             // Foreign Key 
-
             owner: roomId
         };
 

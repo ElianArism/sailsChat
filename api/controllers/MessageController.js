@@ -1,11 +1,5 @@
-/**
- * MessageController
- *
- * @description :: Server-side actions for handling incoming requests.
- * @help        :: See https://sailsjs.com/docs/concepts/actions
- */
-
 module.exports = {
+    
     // list msg 
     list: async (req, res) => {
         const {roomId: id} = req.params; 
@@ -31,7 +25,7 @@ module.exports = {
         const newMsg = await Message.create(data).fetch(); 
         
         // Broadcast a todos para avisar que algo cambio 
-        sails.sockets.blast({ room: roomId}) // hacer broadcast
+        sails.sockets.blast({ room: roomId}) 
         return res.status(201).json(newMsg); 
     }
 
